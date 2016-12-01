@@ -1,0 +1,61 @@
+body {
+	background-image: url('fundo.jpg');
+	padding-top:20px;
+	padding-bottom: 20px;
+
+}
+.navbar{
+	margin-bottom: 20px;
+}
+
+#APP_financeiro {
+background-image: url('fundo.jpg');
+background-repeat: no-repeat;
+background-size:100%;
+bottom: 0;
+color: black;
+left: 0;
+overflow: auto;
+padding: 3em;
+position: absolute;
+right: 0;
+text-align: center;
+top: 0;
+margin: top:0;
+margin-left: auto;
+margin-right: auto;
+background-color: #E2E5E5;
+
+}
+#header{
+	width:auto;
+	height:auto;
+	background-color: #B4B3B3;
+}
+#conteudo{
+	width:auto;
+	height:auto;
+	background-color: #E9D1D1;
+}
+#footer{
+	width:auto;
+	height:auto;
+	background-color: #E2DEF4;
+}
+#conteudo-index{
+
+	width:auto;
+	height:auto;
+	background-color: #CCDCE5;
+}
+#conteudo-left{
+
+	width:auto;
+	height:auto;
+	background-color: #DAEDF2;
+}
+#conteudo-right{
+	width:auto;
+	height:auto;
+	background-color: #CCDCE5;
+}

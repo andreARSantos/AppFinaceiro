@@ -1,0 +1,1244 @@
+<html>
+<head>
+<meta charset="utf-8">
+<title>Matematica Finaceira</title>
+</head>	
+<link type="text/css" rel="stylesheet" media="screen" href="estilos.css"/>
+<body background="/images/fundo.jpg" bgproperties="fixed" >
+	<div id="APP_financeiro">
+		<h1><b><center>Formulas PRICE E SAC</center></b></h1>
+		
+		<div id="conteudo">
+		<style type="text/css">
+		html{
+			background-color: #ABABAB ;
+		}
+		table{
+			width: 100%;
+			border-collapse: collapse;
+			margin-top: 10px;
+			text-align: center;
+		}
+		.border1{
+			border-top: 1px solid black;
+			border-left: 1px solid black;
+		}
+		.border2{
+			border-top: 1px solid black;
+			border-right: 1px solid black;
+		}
+		.border3{
+			border-bottom: 1px solid black;
+			border-left: 1px solid black;
+		}
+		.border4{
+			border-bottom: 1px solid black;
+			border-right: 1px solid black;
+		}
+		#valores tr td:first-of-type{
+			text-align: right;
+		}
+		#valores tr td:last-of-type{
+			text-align: left;
+		}
+		#opcoes tr td:nth-child(1){
+			background-color: #ABABAB ;
+		}
+		#opcoes tr td:nth-child(2), #opcoes2 tr td:nth-child(1){
+			background-color: #ABABAB ;
+		}
+		#opcoes tr td:nth-child(3), #opcoes2 tr td:nth-child(2){
+			background-color: #ABABAB ;
+		}
+		#opcoes tr td:nth-child(4){
+			background-color: #ABABAB ;
+		}
+		#ApresentarResultado{
+			margin-top: 50px;
+		}
+		#ApresentarResultado tr:nth-child(even){
+			background-color: #ABABAB ;
+		}
+		#ApresentarResultado tr td:nth-child(even){
+			border-left: 1px dashed black;
+			border-right: 1px dashed black;
+		}
+		td{
+			padding: 2px;
+		}
+		#Opcoes,#Opcoes2{
+			border: 1px dotted black;
+			border-collapse: separate;
+		}
+		#opcoes input,#opcoes2 input{
+			width: 90%;
+			font-size: 75%;
+			white-space: pre-line;
+			margin: 3px;
+			border-width: 1px;
+			background-image: url('fundo.jpg')
+			border-color: white;
+			border-radius: 5%;
+		}
+		#Valores input{
+			width: 70%;
+			min-width: 100px;
+			max-width: 200px;
+			border-width: 1px;
+			border-radius: 5%;
+		}
+		#Valores td{
+			width: 50%;
+		}
+		#Valores #Juros{
+			width: calc(70% - 18px);
+		}
+		#Valores #Parcela{
+			width: calc(70% - 18px);
+		}
+		#Valores #Go{
+			min-width: 18px;
+			width: calc(10% + 18px);
+			max-width: calc(20% + 18px);
+		}
+		#Valores #Filtrar{
+			visibility: hidden;
+		}
+		#Valores input{
+			white-space: pre-line;
+			visibility: inherit;
+		}
+		#ApresentarDetalhes{
+			position: fixed;
+			max-width: 50%;
+			max-height: 50%;
+			top: 2%;
+			padding: 5px;
+			overflow: auto;
+			visibility: hidden;
+			
+			background-color: #ABABAB ;
+			border: 2px solid gray;
+		}
+	</style>
+	<script type="text/javascript">
+		var valorParcela, juros, tempo, carencia, incrementar, tipoOperacao, itensFiltro=[], listaValores;
+		function CalcularTotalValorFixo(caller){
+			tipoOperacao="Juntar";
+			tabela = document.querySelector("#ApresentarResultado");
+			while (tabela.firstChild) tabela.removeChild(tabela.firstChild);
+			if(Checar("Valor")) retornar=true;
+			if(Checar("Juros")) retornar=true;
+			if(Checar("Tempo")) retornar=true;
+			if(retornar) {alert("Há campos necessários em branco"); return;}
+			valorParcela = document.querySelector("#Valor").value.trim()*1;
+			juros = document.querySelector("#Juros").value.trim()*0.01;
+			tempo = document.querySelector("#Tempo").value.trim()*1;
+			incrementar = 0;
+			carencia = 0;
+			
+			valorTotal = Math.pow(1+juros, tempo) - 1;
+			valorTotal = valorTotal/juros;
+			valorTotal = valorTotal*valorParcela;
+			GerarTabela(valorTotal,"Total");
+		}
+		function CalcularParcelaValorFixo(caller){
+			tipoOperacao="Juntar";
+			tabela = document.querySelector("#ApresentarResultado");
+			while (tabela.firstChild) tabela.removeChild(tabela.firstChild);
+			if(Checar("Valor")) retornar=true;
+			if(Checar("Juros")) retornar=true;
+			if(Checar("Tempo")) retornar=true;
+			if(retornar) {alert("Há campos necessários em branco"); return;}
+			valorTotal = document.querySelector("#Valor").value.trim()*1;
+			juros = document.querySelector("#Juros").value.trim()*0.01;
+			tempo = document.querySelector("#Tempo").value.trim()*1;
+			incrementar = 0;
+			carencia = 0;
+			
+			valorParcela = Math.pow(1+juros, tempo)-1;
+			valorParcela = juros/valorParcela;
+			valorParcela *= valorTotal;
+			GerarTabela(valorParcela,"Parcela");
+		}
+		function CalcularTotalEmprestimoValorFixo(caller){
+			tipoOperacao="Pagar";
+			tabela = document.querySelector("#ApresentarResultado");
+			while (tabela.firstChild) tabela.removeChild(tabela.firstChild);
+			if(Checar("Valor")) retornar=true;
+			if(Checar("Juros")) retornar=true;
+			if(Checar("Tempo")) retornar=true;
+			if(retornar) {alert("Há campos necessários em branco"); return;}
+			valorParcela = document.querySelector("#Valor").value.trim()*1;
+			juros = document.querySelector("#Juros").value.trim()*0.01;
+			tempo = document.querySelector("#Tempo").value.trim()*1;
+			incrementar = 0;
+			carencia = 0;
+			
+			x = Math.pow(1+juros, tempo);
+			valorTotal = (x-1)/(x*juros);
+			valorTotal = valorTotal*valorParcela;
+			GerarTabela(valorTotal,"Total");
+		}
+		function CalcularParcelaEmprestimoValorFixo(caller){
+			tipoOperacao="Pagar";
+			tabela = document.querySelector("#ApresentarResultado");
+			while (tabela.firstChild) tabela.removeChild(tabela.firstChild);
+			if(Checar("Valor")) retornar=true;
+			if(Checar("Juros")) retornar=true;
+			if(Checar("Tempo")) retornar=true;
+			if(retornar) {alert("Há campos necessários em branco"); return;}
+			valorTotal = document.querySelector("#Valor").value.trim()*1;
+			juros = document.querySelector("#Juros").value.trim()*0.01;
+			tempo = document.querySelector("#Tempo").value.trim()*1;
+			incrementar = 0;
+			carencia = 0;
+			
+			x = Math.pow(1+juros, tempo);
+			valorParcela = (x*juros)/(x-1);
+			valorParcela *= valorTotal;
+			GerarTabela(valorParcela,"Parcela");
+		}
+		function CalcularTotalEmprestimoValorFixoCar(caller){
+			tipoOperacao="Pagar";
+			tabela = document.querySelector("#ApresentarResultado");
+			while (tabela.firstChild) tabela.removeChild(tabela.firstChild);
+			if(Checar("Valor")) retornar=true;
+			if(Checar("Juros")) retornar=true;
+			if(Checar("Tempo")) retornar=true;
+			if(Checar("Carencia")) retornar=true;
+			if(retornar) {alert("Há campos necessários em branco"); return;}
+			valorParcela = document.querySelector("#Valor").value.trim()*1;
+			juros = document.querySelector("#Juros").value.trim()*0.01;
+			tempo = document.querySelector("#Tempo").value.trim()*1;
+			carencia = document.querySelector("#Carencia").value.trim()*1;
+			incrementar = 0;
+			
+			x = Math.pow(1+juros, tempo);
+			valorTotal = (x-1)/(x*juros);
+			valorTotal *= valorParcela;
+			valorTotal *= 1/Math.pow(1+juros, carencia);
+			aplicarCorrecao = true;
+			GetValorAmortizacoes(valorTotal);
+			GerarTabela(valorTotal,"Total");
+		}
+		function CalcularParcelaEmprestimoValorFixoCar(caller){
+			tipoOperacao="Pagar";
+			tabela = document.querySelector("#ApresentarResultado");
+			while (tabela.firstChild) tabela.removeChild(tabela.firstChild);
+			if(Checar("Valor")) retornar=true;
+			if(Checar("Juros")) retornar=true;
+			if(Checar("Tempo")) retornar=true;
+			if(Checar("Carencia")) retornar=true;
+			if(retornar) {alert("Há campos necessários em branco"); return;}
+			valorTotal = document.querySelector("#Valor").value.trim()*1;
+			juros = document.querySelector("#Juros").value.trim()*0.01;
+			tempo = document.querySelector("#Tempo").value.trim()*1;
+			carencia = document.querySelector("#Carencia").value.trim()*1;
+			incrementar = 0;
+			
+			valorTotal *= Math.pow(1+juros, carencia);
+			
+			x = Math.pow(1+juros, tempo);
+			valorParcela = (x*juros)/(x-1);
+			valorParcela *= valorTotal;
+			aplicarCorrecao = false;
+			GetValorAmortizacoes(valorTotal);
+			GerarTabela(valorParcela,"Parcela");
+		}
+		function GetValorAmortizacoes(TotalParcelaValorReal){
+			listaValores = [];
+			listaValores.push(TotalParcelaValorReal);
+			x = Math.pow(1+juros, tempo);
+			j = (x*juros)/(x-1);
+			j *= valorTotal;
+			for(i=0;i<tempo;i++){
+				k = j;
+				k -= TotalParcelaValorReal*juros;
+				TotalParcelaValorReal -= k;
+				listaValores.push(k);
+			}
+		}
+		
+		function CalcularTotalAumentoParcela(caller){
+			tipoOperacao="Juntar";
+			tabela = document.querySelector("#ApresentarResultado");
+			while (tabela.firstChild) tabela.removeChild(tabela.firstChild);
+			if(Checar("Valor")) retornar=true;
+			if(Checar("Juros")) retornar=true;
+			if(Checar("Tempo")) retornar=true;
+			if(Checar("Incrementar")) retornar=true;
+			if(retornar) {alert("Há campos necessários em branco"); return;}
+			valorParcela = document.querySelector("#Valor").value.trim()*1;
+			juros = document.querySelector("#Juros").value.trim()*0.01;
+			tempo = document.querySelector("#Tempo").value.trim()*1;
+			incrementar = document.querySelector("#Incrementar").value.trim()*1;
+			if(incrementar<0 && caller.value=="Aumentando parcela") {
+				incrementar *= -1;
+				document.querySelector("#Incrementar").value = incrementar;
+			}
+			carencia=0;
+			valorParcela -= incrementar;
+			valorTotal = 1+juros;
+			valorTotal = Math.pow(valorTotal, tempo)-1;
+			valorTotal = valorTotal/juros;
+			valorTotal *= 1+juros;
+			valorTotal -= tempo;
+			valorTotal *= incrementar/juros;
+			incrementar = valorParcela-incrementar;
+			 
+			incrementar = valorTotal;
+			valorTotal = 1+juros;
+			valorTotal = Math.pow(valorTotal, tempo)-1;
+			valorTotal = valorTotal/juros;
+			valorTotal = valorTotal*valorParcela;
+			valorTotal = valorTotal;
+			valorTotal += incrementar;
+			incrementar = document.querySelector("#Incrementar").value.trim()*1;
+			GerarTabela(valorTotal,"Total");
+		}
+		function CalcularTotalReducaoParcela(caller){
+			incrementar = document.querySelector("#Incrementar").value.trim()*1;
+			if(incrementar>0) {
+				incrementar *= -1;
+				document.querySelector("#Incrementar").value = incrementar;
+			}
+			CalcularTotalAumentoParcela(caller);
+		}
+		
+		function SACCalcularTotalEmprestimoValorFixo(caller){
+			tipoOperacao="Pagar";
+			tabela = document.querySelector("#ApresentarResultado");
+			while (tabela.firstChild) tabela.removeChild(tabela.firstChild);
+			if(Checar("Valor")) retornar=true;
+			if(Checar("Juros")) retornar=true;
+			if(Checar("Tempo")) retornar=true;
+			if(retornar) {alert("Há campos necessários em branco"); return;}
+			valorParcela = document.querySelector("#Valor").value.trim()*1;
+			juros = document.querySelector("#Juros").value.trim()*0.01;
+			tempo = document.querySelector("#Tempo").value.trim()*1;
+			incrementar = 0;
+			carencia = 0;
+			
+			x = Math.pow(1+juros, tempo);
+			valorTotal = (x-1)/(x*juros);
+			valorTotal = valorTotal*valorParcela;
+			GerarTabelaSAC(valorTotal,"Total");
+		}
+		function SACCalcularParcelaEmprestimoValorFixo(caller){
+			tipoOperacao="Pagar";
+			tabela = document.querySelector("#ApresentarResultado");
+			while (tabela.firstChild) tabela.removeChild(tabela.firstChild);
+			if(Checar("Valor")) retornar=true;
+			if(Checar("Juros")) retornar=true;
+			if(Checar("Tempo")) retornar=true;
+			if(retornar) {alert("Há campos necessários em branco"); return;}
+			valorTotal = document.querySelector("#Valor").value.trim()*1;
+			juros = document.querySelector("#Juros").value.trim()*0.01;
+			tempo = document.querySelector("#Tempo").value.trim()*1;
+			incrementar = 0;
+			carencia = 0;
+			
+			x = Math.pow(1+juros, tempo);
+			valorParcela = valorTotal/tempo;
+			GerarTabelaSAC(valorParcela,"Parcela");
+		}
+		function SACCalcularTotalEmprestimoValorFixoCar(caller){
+			tipoOperacao="Pagar";
+			tabela = document.querySelector("#ApresentarResultado");
+			while (tabela.firstChild) tabela.removeChild(tabela.firstChild);
+			if(Checar("Valor")) retornar=true;
+			if(Checar("Juros")) retornar=true;
+			if(Checar("Tempo")) retornar=true;
+			if(Checar("Carencia")) retornar=true;
+			if(retornar) {alert("Há campos necessários em branco"); return;}
+			valorParcela = document.querySelector("#Valor").value.trim()*1;
+			juros = document.querySelector("#Juros").value.trim()*0.01;
+			tempo = document.querySelector("#Tempo").value.trim()*1;
+			carencia = document.querySelector("#Carencia").value.trim()*1;
+			incrementar = 0;
+			
+			x = Math.pow(1+juros, tempo);
+			valorTotal = (x-1)/(x*juros);
+			valorTotal *= valorParcela;
+			//valorTotal *= 1/Math.pow(1+juros, carencia);
+			aplicarCorrecao = true;
+			valorTotal = valorTotal*valorParcela;
+			GerarTabelaSAC(valorTotal,"Total");
+		}
+		function SACCalcularParcelaEmprestimoValorFixoCar(caller){
+			tipoOperacao="Pagar";
+			tabela = document.querySelector("#ApresentarResultado");
+			while (tabela.firstChild) tabela.removeChild(tabela.firstChild);
+			if(Checar("Valor")) retornar=true;
+			if(Checar("Juros")) retornar=true;
+			if(Checar("Tempo")) retornar=true;
+			if(Checar("Carencia")) retornar=true;
+			if(retornar) {alert("Há campos necessários em branco"); return;}
+			valorTotal = document.querySelector("#Valor").value.trim()*1;
+			juros = document.querySelector("#Juros").value.trim()*0.01;
+			tempo = document.querySelector("#Tempo").value.trim()*1;
+			carencia = document.querySelector("#Carencia").value.trim()*1;
+			incrementar = 0;
+			
+			//valorTotal *= Math.pow(1+juros, carencia);
+			
+			x = Math.pow(1+juros, tempo);
+			valorParcela = (x*juros)/(x-1);
+			valorParcela *= valorTotal;
+			aplicarCorrecao = true;
+			valorParcela = valorTotal/tempo;
+			GerarTabelaSAC(valorParcela,"Parcela");
+		}
+		
+		function GerarTabela(valorResultado,tipo) {
+			tabela = document.querySelector("#ApresentarResultado");
+			switch(tipo){
+				case "Total":
+					linha = document.createElement("tr");
+					linha.id = "Parcela0";
+					tabela.appendChild(linha);
+					celula = document.createElement("td");
+					celula.colSpan="9";
+					celula.style.border="1px solid black";
+					celula.style.padding="10px";
+					linha.appendChild(celula);
+					if(tipoOperacao=="Juntar") celula.innerHTML = "O valor total no final do período é: R$ "+ Number(valorResultado).toFixed(2);
+					else celula.innerHTML = "O valor financiado é: R$ "+ Number(valorResultado).toFixed(2);
+					GerarTabela(valorParcela,"Parcela");
+					break;
+				case "Parcela":
+					valorPago=0;
+					amortizacao=0;
+					//if(carencia!=0 && aplicarCorrecao) valorTotal *= Math.pow(1+juros, carencia);
+					document.querySelector("#ApresentarDetalhes").style.visibility = "";
+					if(tipoOperacao=="Juntar") itensFiltro = [[[valorTotal,((valorResultado+incrementar)+(valorResultado+incrementar*tempo))*tempo/2]]];
+					else itensFiltro = [[[valorResultado*tempo,valorTotal]]];
+					itensFiltro[0][0][2] = itensFiltro[0][0][0]-itensFiltro[0][0][1];
+					for(i=0;i<tempo;i++){
+						linha = document.createElement("tr");
+						linha.id = "Parcela"+(i+1);
+						tabela.appendChild(linha);
+						valorResultado += incrementar;
+						if(tipoOperacao=="Juntar") valorPago += valorResultado*(1/Math.pow(1+juros,carencia));
+						//else {valorPago += valorParcela;}
+							celula = document.createElement("td");
+							linha.appendChild(celula);
+							celula.setAttribute("onclick","location.href = '#'");
+							voltarTopo = document.createElement("a");
+							celula.innerHTML="Voltar"
+							celula.appendChild(voltarTopo);
+						for(j=0;j<=2;j++){
+							celula = document.createElement("td");
+							linha.appendChild(celula);
+							celula.setAttribute("onclick","document.querySelector('#Selecao"+(i+1)+"').click()");
+							celula.setAttribute("ondblclick","document.querySelector('#Selecao"+(i+1)+"').ondblclick()");
+							switch(j){
+								case 0:
+									checkLinha = document.createElement("input");
+									checkLinha.type = "checkbox";
+									checkLinha.id = "Selecao"+(i+1);
+									checkLinha.value = i+1;
+									checkLinha.setAttribute("onclick","changeRowSelection(this,500)");
+									checkLinha.setAttribute("ondblclick","marcaAte(this)");
+									celula.appendChild(checkLinha);
+									celula.innerHTML += (i+1)+"ª Parcela";
+									celula.innerHTML += "<br/><br/>";
+									celula.innerHTML += "O valor da parcela é: R$ "+ Number(valorResultado).toFixed(2);
+									itensFiltro[0][(i+1)] = [valorResultado];
+									break;
+								case 1:
+									celula.innerHTML += "Total atual: R$ "+ Number(valorPago).toFixed(2);
+									celula.innerHTML += "<br/><br/>";
+									saldo = tipoOperacao=="Juntar"?Number(valorTotal-valorPago).toFixed(2):Number(valorTotal).toFixed(2);
+									celula.innerHTML += "Saldo a "+tipoOperacao+": R$ "+ Number(saldo).toFixed(2);
+									break;
+								case 2:
+									if(tipoOperacao=="Juntar") {
+										amortizacao = valorResultado;
+									}else {
+										if(listaValores==null){
+											amortizacao = valorTotal*juros*-1;
+											//amortizacao *= 1/Math.pow((1+juros),carencia);
+											amortizacao += valorResultado;
+										}else amortizacao = listaValores[(i+1)];
+
+										valorTotal -= amortizacao;
+										valorPago += amortizacao;
+									}
+									celula.innerHTML += "Amortização: R$ "+ Number(amortizacao).toFixed(2);
+									celula.innerHTML += "<br/><br/>";
+									itensFiltro[0][(i+1)][1] = amortizacao;
+									if(tipoOperacao=="Juntar") {
+										valorJuros = valorPago*juros;
+									}else{
+										if(listaValores==null) valorJuros = valorResultado-amortizacao;
+										else valorJuros = valorResultado - listaValores[(i+1)];
+									}
+									celula.innerHTML += "Juros: R$ "+ Number(valorJuros).toFixed(2);
+									itensFiltro[0][(i+1)][2] = valorJuros;
+									break;
+							}
+						}
+						if(tipoOperacao=="Juntar") valorPago*=1+juros;
+					}
+					break;
+			}
+			itensFiltro[0][0][6] = 0;
+			listaValores = null;
+		}
+		function GerarTabelaSAC(valorResultado,tipo) {
+			tabela = document.querySelector("#ApresentarResultado");
+			switch(tipo){
+				case "Total":
+					linha = document.createElement("tr");
+					linha.id = "Parcela0";
+					tabela.appendChild(linha);
+					celula = document.createElement("td");
+					celula.colSpan="9";
+					celula.style.border="1px solid black";
+					celula.style.padding="10px";
+					linha.appendChild(celula);
+					celula.innerHTML = "O valor financiado é: R$ "+ Number(valorParcela*tempo).toFixed(2)+
+					"<br/>"+
+					"O valor total dos juros é: R$ "+ Number(valorParcela*(tempo+1)*juros*(tempo/2)*Math.pow(1+juros, carencia)).toFixed(2);
+					GerarTabelaSAC(valorParcela,"Parcela");
+					break;
+				case "Parcela":
+					valorPago=0;
+					amortizacao=valorParcela*1;
+					valorResultado = valorParcela*tempo;
+					if(carencia!=0 && aplicarCorrecao) juros *= Math.pow(1+juros, carencia);
+					document.querySelector("#ApresentarDetalhes").style.visibility = "";
+					itensFiltro = [[[valorResultado+(valorParcela*(tempo+1)*juros*(tempo/2)),valorParcela*tempo]]];
+					itensFiltro[0][0][2] = itensFiltro[0][0][0]-itensFiltro[0][0][1];
+					for(i=0;i<tempo;i++){
+						linha = document.createElement("tr");
+						linha.id = "Parcela"+(i+1);
+						tabela.appendChild(linha);
+							celula = document.createElement("td");
+							linha.appendChild(celula);
+							celula.setAttribute("onclick","location.href = '#'");
+							celula.innerHTML = "Voltar"
+							voltarTopo = document.createElement("a");
+							celula.appendChild(voltarTopo);
+						for(j=0;j<=2;j++){
+							celula = document.createElement("td");
+							linha.appendChild(celula);
+							celula.setAttribute("onclick","document.querySelector('#Selecao"+(i+1)+"').click()");
+							celula.setAttribute("ondblclick","document.querySelector('#Selecao"+(i+1)+"').ondblclick()");
+							switch(j){
+								case 0:
+									checkLinha = document.createElement("input");
+									checkLinha.type = "checkbox";
+									checkLinha.id = "Selecao"+(i+1);
+									checkLinha.value = i+1;
+									checkLinha.setAttribute("onclick","changeRowSelection(this,500)");
+									checkLinha.setAttribute("ondblclick","marcaAte(this)");
+									celula.appendChild(checkLinha);
+									celula.innerHTML += (i+1)+"ª Parcela";
+									celula.innerHTML += "<br/><br/>";
+									celula.innerHTML += "O valor da parcela é: R$ "+ Number(valorParcela+(valorResultado*juros)).toFixed(2);
+									itensFiltro[0][(i+1)] = [valorParcela+(valorResultado*juros)];
+									break;
+								case 1:
+									celula.innerHTML += "Total atual: R$ "+ Number(valorParcela*(i+1)).toFixed(2);
+									celula.innerHTML += "<br/><br/>";
+									celula.innerHTML += "Saldo a "+tipoOperacao+": R$ "+ Number(valorResultado-amortizacao).toFixed(2);
+									break;
+								case 2:
+									celula.innerHTML += "Amortização: R$ "+ Number(amortizacao).toFixed(2);
+									celula.innerHTML += "<br/><br/>";
+									itensFiltro[0][(i+1)][1] = amortizacao;
+									if(tipoOperacao=="Juntar") celula.innerHTML += "Juros: R$ "+ Number(valorPago-amortizacao).toFixed(2);
+									else celula.innerHTML += "Juros: R$ "+ Number(valorResultado*juros).toFixed(2);
+									itensFiltro[0][(i+1)][2] = valorResultado*juros;
+									valorResultado -= valorParcela;
+									break;
+							}
+						}
+						if(tipoOperacao=="Juntar") valorPago*=1+juros;
+					}
+					break;
+			}
+			if(itensFiltro[0].length<3) itensFiltro[0][0][6] = 0;
+			else itensFiltro[0][0][6] = itensFiltro[0][1][0]-itensFiltro[0][2][0];
+		}
+		function Checar(campo){
+			retornar=false;
+			tag="#"+campo;
+			document.querySelector(tag).parentNode.style.border="";
+			campo=document.querySelector(tag).value.trim();
+			if(campo=="") {document.querySelector(tag).parentNode.style.border="1px solid red"; retornar=true;}
+			return retornar;
+		}
+		
+		function Go(){
+			quantParcelas = document.querySelector("#ApresentarResultado").childElementCount;
+			if(quantParcelas==0) {
+				alert("Favor gerar seu parcelamento primeiro");
+				return;
+			}
+			if(document.querySelector("#ApresentarResultado").children[0].childElementCount==1) quantParcelas--;
+
+			irPara = IrParcela.value*1;
+			if(irPara<=quantParcelas) location.href="#Parcela"+irPara;
+		}
+		function changeRowSelection(campo,tempo){
+			executarInversao=true;
+			setTimeout(function(){
+				if(!executarInversao) return;
+				if(campo.checked) {
+					campo.parentNode.style.backgroundColor="#ABABAB";
+					}else{
+						campo.parentNode.style.backgroundColor="";
+					}
+				controlaFiltro(campo.value*1,campo.checked)
+			},tempo);
+		}
+		function controlaFiltro(campo,Adicionar){
+			if(Adicionar) {
+				itensFiltro.push(campo*1);
+				switch(itensFiltro.length){
+					case 2:
+						itensFiltro[0][0][3] = itensFiltro[0][campo][0];
+						itensFiltro[0][0][4] = itensFiltro[0][campo][1];
+						itensFiltro[0][0][5] = itensFiltro[0][campo][2];
+						break;
+					default:
+						itensFiltro[0][0][3] += itensFiltro[0][campo][0];
+						itensFiltro[0][0][4] += itensFiltro[0][campo][1];
+						itensFiltro[0][0][5] += itensFiltro[0][campo][2];
+						break;
+				}
+			}else{
+				itensFiltro.splice(itensFiltro.indexOf(campo),1);
+				switch(itensFiltro.length){
+					case 1:
+						itensFiltro[0][0][3] = 0;
+						itensFiltro[0][0][4] = 0;
+						itensFiltro[0][0][5] = 0;
+						break;
+					case 2:
+						itensFiltro[0][0][3] = itensFiltro[0][itensFiltro[1]][0];
+						itensFiltro[0][0][4] = itensFiltro[0][itensFiltro[1]][1];
+						itensFiltro[0][0][5] = itensFiltro[0][itensFiltro[1]][2];
+						break;
+					default:
+						itensFiltro[0][0][3] -= itensFiltro[0][campo][0];
+						itensFiltro[0][0][4] -= itensFiltro[0][campo][1];
+						itensFiltro[0][0][5] -= itensFiltro[0][campo][2];
+						break;
+				}			}
+			detalharSelecionadas();
+		}
+		function marcaAte(campo){
+			executarInversao=false;
+			MarcaMax = document.querySelectorAll("input[type=checkbox]").length;
+			
+			MarcaAte = prompt("Deseja inverter a seleção até que parcela? ",MarcaMax);
+			if(MarcaAte == null || MarcaAte.trim()=="" ) return;
+			if( isNaN(MarcaAte) || MarcaAte<1 || MarcaAte>MarcaMax ) {
+				alert("Não existe a parcela ' " + MarcaAte.trim() + " '");
+				return;
+			}
+			
+			setTimeout(function(){
+				MarcaAte *=1;
+				//alert(campo.value)
+				if(campo.value>MarcaAte) for(i=campo.value;i>=MarcaAte;i--){
+					marcarParcela(i);
+				}
+				else for(i=campo.value;i<=MarcaAte;i++){
+					marcarParcela(i);
+				}
+			},600);
+		}
+		function marcarParcela(parcela){
+			document.querySelector("#Selecao"+parcela).click();
+		}
+		function money(valor){
+			return Number(valor).toFixed(2);
+		}
+		function detalharSelecionadas(){
+			detalhesMostrados = document.querySelector("#ApresentarDetalhes");
+			ValorParaMostrar = [];
+			ValorParaMostrar = ValorParaMostrar.concat(itensFiltro);
+			ValorParaMostrar.shift();
+			ValorParaMostrar.sort(function(a,b) { return a-b; });
+			
+			switch(itensFiltro.length){
+				case 0:
+				case 1:
+					detalhesMostrados.innerHTML = "";
+					break;
+				case 2:
+					detalhesMostrados.innerHTML = "Parcela selecionada: " + ValorParaMostrar + ".<br/>";
+					detalhesMostrados.innerHTML += "<br/>";
+					detalhesMostrados.innerHTML += "Detalhes da parcela selecionada:<br/>";
+					detalhesMostrados.innerHTML += "Total com juros: "+money(itensFiltro[0][0][3])+"<br/>";
+					detalhesMostrados.innerHTML += "Amortização: "+money(itensFiltro[0][0][4])+"<br/>";
+					detalhesMostrados.innerHTML += "Juros: "+money(itensFiltro[0][0][5])+"<br/>";
+					if(itensFiltro[0][0][6]!=0) detalhesMostrados.innerHTML += "Decréscimo nas prestações: "+money(itensFiltro[0][0][6])+"<br/>";
+					detalhesMostrados.innerHTML += "<br/>";
+					detalhesMostrados.innerHTML += "Resta pagar:<br/>";
+					detalhesMostrados.innerHTML += "Total com juros: "+money(itensFiltro[0][0][0]-itensFiltro[0][0][3])+"<br/>";
+					detalhesMostrados.innerHTML += "Amortização: "+money(itensFiltro[0][0][1]-itensFiltro[0][0][4])+"<br/>";
+					detalhesMostrados.innerHTML += "Juros: "+money(itensFiltro[0][0][2]-itensFiltro[0][0][5])+"<br/>";
+					break;
+				default:
+					detalhesMostrados.innerHTML = "Parcelas selecionadas: " + ValorParaMostrar.join(", ") + ".<br/>";
+					detalhesMostrados.innerHTML += "<br/>";
+					detalhesMostrados.innerHTML += "Detalhes das parcelas selecionadas:<br/>";
+					detalhesMostrados.innerHTML += "Total com juros: "+money(itensFiltro[0][0][3])+"<br/>";
+					detalhesMostrados.innerHTML += "Amortização: "+money(itensFiltro[0][0][4])+"<br/>";
+					detalhesMostrados.innerHTML += "Juros: "+money(itensFiltro[0][0][5])+"<br/>";
+					if(itensFiltro[0][0][6]!=0) detalhesMostrados.innerHTML += "Decréscimo nas prestações: "+money(itensFiltro[0][0][6])+"<br/>";
+					detalhesMostrados.innerHTML += "<br/>";
+					detalhesMostrados.innerHTML += "Resta pagar:<br/>";
+					detalhesMostrados.innerHTML += "Total com juros: "+money(itensFiltro[0][0][0]-itensFiltro[0][0][3])+"<br/>";
+					detalhesMostrados.innerHTML += "Amortização: "+money(itensFiltro[0][0][1]-itensFiltro[0][0][4])+"<br/>";
+					detalhesMostrados.innerHTML += "Juros: "+money(itensFiltro[0][0][2]-itensFiltro[0][0][5])+"<br/>";
+					break;
+			}
+			
+			if(detalhesMostrados.innerHTML == "") detalhesMostrados.style.visibility = "";
+			else detalhesMostrados.style.visibility = "visible";
+			detalhesMostrados.style.left = "calc(50% - "+ detalhesMostrados.offsetWidth/2 +"px)";
+		}
+	</script>
+</head>
+<body background="/images/fundo.jpg" bgproperties="fixed" >
+	<div id="conteudo-index">
+	<table id="Valores" width="300px" border="1px" bordercolor="#0DFF00">
+		
+		
+			<td>Parcelas: </td>
+			<td><input type="number" id="IrParcela" min="0" onfocus="select(this);" onblur="this.parentNode.style.border='';" placeholder="Parcela X"> 
+			<input id="Go" type="button" value="Mostrar Parcelas" onclick="Go()"></td>
+			
+		<tr>
+			<td>Total da Parcela:</td>
+			<td><input type="number" id="Valor" min="0" step="0.01" onfocus="select(this);" onblur="this.parentNode.style.border='';" placeholder="R$ 0.000,00"></td>
+		</tr>
+		<tr>
+			<td>Juros % :</td>
+			<td style="white-space: nowrap;"><input type="number" id="Juros" min="0" step="0.01" onfocus="select(this);" onblur="this.parentNode.style.border='';" placeholder="0%"></td>
+		</tr>
+		<tr>
+			<td>Tempo do Parcela:</td>
+			<td><input type="number" id="Tempo" min="0" onfocus="select(this);" onblur="this.parentNode.style.border='';" placeholder="0 Meses/Anos"></td>
+		</tr>
+		<tr>
+			<td>Carência: </td>
+			<td><input type="number" id="Carencia" min="0" onfocus="select(this);" onblur="this.parentNode.style.border='';" placeholder="0 Meses/Anos"></td>
+		</tr>
+		<tr>
+			<td>Proximos Pagamento: </td>
+			<td><input type="number" id="Incrementar" min="0" step="0.01" onfocus="select(this);" onblur="this.parentNode.style.border='';" placeholder="R$ 0.000,00"></td>
+		
+	</table>
+</div>
+<div id="conteudo-index">
+</br>
+	<a href="index.html"><input type="button"value="Sair"></a>
+	</br>
+</div>	 
+	<div id="conteudo-index">
+	<table id="Opcoes" >		
+			<th colspan="4" class="border0"><h1><b>Price</b></h1></th>
+		</tr>
+		<tr>
+			</tr>
+		<tr>
+			<th colspan="4" class="border0"> <font color='#ff0000'> Resultados role para baixo</font></th> 
+		</tr>
+		<tr>
+			<th colspan="2" class="border1 border2">Juntando</th>
+		</tr>
+		<tr>
+			<th class="border3 border4">Calcular o total</th>
+			<th class="border3 border4">Calcular a parcela</th>
+		</tr>
+		<tr>
+			<td><input type="button" value="Mesmo valor" onclick="CalcularTotalValorFixo(this)" ></td>
+			<td><input type="button" value="Mesmo valor" onclick="CalcularParcelaValorFixo(this)" ></td>
+		</tr>
+		<tr>
+			<td><input type="button" value="Aumento da Parcela" onclick="CalcularTotalAumentoParcela(this)" ></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td><input type="button" value="Diminuindo a Parcela" onclick="CalcularTotalReducaoParcela(this)" ></td>
+		</tr>
+	</table>
+<table id="Opcoes">
+	</tr>
+		<tr>
+			<th colspan="2" class="border1 border2">Pagando</th>
+		</tr>
+		<tr>
+			<th class="border3 border4">Calcular o total</th>
+			<th class="border3 border4">Calcular a parcela</th>
+		</tr>
+		<tr>
+			<td><input type="button" value="Mesmo valor" onclick="CalcularTotalEmprestimoValorFixo(this)" ></td>
+			<td><input type="button" value="Mesmo valor" onclick="CalcularParcelaEmprestimoValorFixo(this)" ></td>
+		</tr>
+		<tr>
+			<td><input type="button" value="Valor com carência" onclick="CalcularTotalEmprestimoValorFixoCar(this)" ></td>
+			<td><input type="button" value="Valor com carência" onclick="CalcularParcelaEmprestimoValorFixoCar(this)" ></td>
+		</tr>
+		<tr>
+</table>
+	</div>
+<div id="conteudo-index">
+	<table id="Opcoes2">
+		<tr>
+			<th colspan="4" class="border0"><h1><b>(SAC) </br>Amortização Constante </b></h1></th>
+		</tr>
+		<tr>
+			<th colspan="4" class="border0"> <font color='#ff0000'> Resultados role para baixo</font></th> 
+		</tr>
+		<tr>
+			<th colspan="2" class="border1 border2"></th>
+		</tr>
+		<tr>
+			<th class="border3 border4">Calculo do Total</th>
+			
+		</tr>
+		<tr>
+			<td><input type="button" value="Mesmo valor" onclick="SACCalcularTotalEmprestimoValorFixo(this)" ></td>
+			
+		</tr>
+		<tr>
+			<td><input type="button" value="Valor com carência" onclick="SACCalcularTotalEmprestimoValorFixoCar(this)" ></td>
+			
+		</tr>
+	</table>
+		<table id="Opcoes2">
+		</tr>
+		<tr>
+			<th class="border3 border4">Calculo da Parcela</th>
+		</tr>
+		<tr>
+			<td><input type="button" value="Mesmo valor" onclick="SACCalcularParcelaEmprestimoValorFixo(this)" ></td>
+		</tr>
+		<tr>
+			<td><input type="button" value="Valor com carência" onclick="SACCalcularParcelaEmprestimoValorFixoCar(this)" ></td>
+		</tr>
+		</table>
+		</div>
+			<div id="ApresentarDetalhes" onclick="this.style.visibility='';"></div>
+			<table id="ApresentarResultado"></table>
+		</body>
+</html>
+	</div>	
+	<center>
+	</style>
+	<script type="text/javascript">
+		function SACCalcularTotalEmprestimoValorFixo(caller){
+			tipoOperacao="Pagar";
+			tabela = document.querySelector("#ApresentarResultado");
+			while (tabela.firstChild) tabela.removeChild(tabela.firstChild);
+			if(Checar("Valor")) retornar=true;
+			if(Checar("Juros")) retornar=true;
+			if(Checar("Tempo")) retornar=true;
+			if(retornar) {alert("Há campos necessários em branco"); return;}
+			valorParcela = document.querySelector("#Valor").value.trim()*1;
+			juros = document.querySelector("#Juros").value.trim()*0.01;
+			tempo = document.querySelector("#Tempo").value.trim()*1;
+			incrementar = 0;
+			carencia = 0;
+			
+			x = Math.pow(1+juros, tempo);
+			valorTotal = (x-1)/(x*juros);
+			valorTotal = valorTotal*valorParcela;
+			GerarTabelaSAC(valorTotal,"Total");
+		}
+		function SACCalcularParcelaEmprestimoValorFixo(caller){
+			tipoOperacao="Pagar";
+			tabela = document.querySelector("#ApresentarResultado");
+			while (tabela.firstChild) tabela.removeChild(tabela.firstChild);
+			if(Checar("Valor")) retornar=true;
+			if(Checar("Juros")) retornar=true;
+			if(Checar("Tempo")) retornar=true;
+			if(retornar) {alert("Há campos necessários em branco"); return;}
+			valorTotal = document.querySelector("#Valor").value.trim()*1;
+			juros = document.querySelector("#Juros").value.trim()*0.01;
+			tempo = document.querySelector("#Tempo").value.trim()*1;
+			incrementar = 0;
+			carencia = 0;
+			
+			x = Math.pow(1+juros, tempo);
+			valorParcela = valorTotal/tempo;
+			GerarTabelaSAC(valorParcela,"Parcela");
+		}
+		function SACCalcularTotalEmprestimoValorFixoCar(caller){
+			tipoOperacao="Pagar";
+			tabela = document.querySelector("#ApresentarResultado");
+			while (tabela.firstChild) tabela.removeChild(tabela.firstChild);
+			if(Checar("Valor")) retornar=true;
+			if(Checar("Juros")) retornar=true;
+			if(Checar("Tempo")) retornar=true;
+			if(Checar("Carencia")) retornar=true;
+			if(retornar) {alert("Há campos necessários em branco"); return;}
+			valorParcela = document.querySelector("#Valor").value.trim()*1;
+			juros = document.querySelector("#Juros").value.trim()*0.01;
+			tempo = document.querySelector("#Tempo").value.trim()*1;
+			carencia = document.querySelector("#Carencia").value.trim()*1;
+			incrementar = 0;
+			
+			x = Math.pow(1+juros, tempo);
+			valorTotal = (x-1)/(x*juros);
+			valorTotal *= valorParcela;
+			//valorTotal *= 1/Math.pow(1+juros, carencia);
+			aplicarCorrecao = true;
+			valorTotal = valorTotal*valorParcela;
+			GerarTabelaSAC(valorTotal,"Total");
+		}
+		function SACCalcularParcelaEmprestimoValorFixoCar(caller){
+			tipoOperacao="Pagar";
+			tabela = document.querySelector("#ApresentarResultado");
+			while (tabela.firstChild) tabela.removeChild(tabela.firstChild);
+			if(Checar("Valor")) retornar=true;
+			if(Checar("Juros")) retornar=true;
+			if(Checar("Tempo")) retornar=true;
+			if(Checar("Carencia")) retornar=true;
+			if(retornar) {alert("Há campos necessários em branco"); return;}
+			valorTotal = document.querySelector("#Valor").value.trim()*1;
+			juros = document.querySelector("#Juros").value.trim()*0.01;
+			tempo = document.querySelector("#Tempo").value.trim()*1;
+			carencia = document.querySelector("#Carencia").value.trim()*1;
+			incrementar = 0;
+			
+			//valorTotal *= Math.pow(1+juros, carencia);
+			
+			x = Math.pow(1+juros, tempo);
+			valorParcela = (x*juros)/(x-1);
+			valorParcela *= valorTotal;
+			aplicarCorrecao = true;
+			valorParcela = valorTotal/tempo;
+			GerarTabelaSAC(valorParcela,"Parcela");
+		}
+		
+		function GerarTabela(valorResultado,tipo) {
+			tabela = document.querySelector("#ApresentarResultado");
+			switch(tipo){
+				case "Total":
+					linha = document.createElement("tr");
+					linha.id = "Parcela0";
+					tabela.appendChild(linha);
+					celula = document.createElement("td");
+					celula.colSpan="9";
+					celula.style.border="1px solid black";
+					celula.style.padding="10px";
+					linha.appendChild(celula);
+					if(tipoOperacao=="Juntar") celula.innerHTML = "O valor total no final do período é: R$ "+ Number(valorResultado).toFixed(2);
+					else celula.innerHTML = "O valor financiado é: R$ "+ Number(valorResultado).toFixed(2);
+					GerarTabela(valorParcela,"Parcela");
+					break;
+				case "Parcela":
+					valorPago=0;
+					amortizacao=0;
+					//if(carencia!=0 && aplicarCorrecao) valorTotal *= Math.pow(1+juros, carencia);
+					document.querySelector("#ApresentarDetalhes").style.visibility = "";
+					if(tipoOperacao=="Juntar") itensFiltro = [[[valorTotal,((valorResultado+incrementar)+(valorResultado+incrementar*tempo))*tempo/2]]];
+					else itensFiltro = [[[valorResultado*tempo,valorTotal]]];
+					itensFiltro[0][0][2] = itensFiltro[0][0][0]-itensFiltro[0][0][1];
+					for(i=0;i<tempo;i++){
+						linha = document.createElement("tr");
+						linha.id = "Parcela"+(i+1);
+						tabela.appendChild(linha);
+						valorResultado += incrementar;
+						if(tipoOperacao=="Juntar") valorPago += valorResultado*(1/Math.pow(1+juros,carencia));
+						//else {valorPago += valorParcela;}
+							celula = document.createElement("td");
+							linha.appendChild(celula);
+							celula.setAttribute("onclick","location.href = '#'");
+							voltarTopo = document.createElement("a");
+							celula.innerHTML="Voltar"
+							celula.appendChild(voltarTopo);
+						for(j=0;j<=2;j++){
+							celula = document.createElement("td");
+							linha.appendChild(celula);
+							celula.setAttribute("onclick","document.querySelector('#Selecao"+(i+1)+"').click()");
+							celula.setAttribute("ondblclick","document.querySelector('#Selecao"+(i+1)+"').ondblclick()");
+							switch(j){
+								case 0:
+									checkLinha = document.createElement("input");
+									checkLinha.type = "checkbox";
+									checkLinha.id = "Selecao"+(i+1);
+									checkLinha.value = i+1;
+									checkLinha.setAttribute("onclick","changeRowSelection(this,500)");
+									checkLinha.setAttribute("ondblclick","marcaAte(this)");
+									celula.appendChild(checkLinha);
+									celula.innerHTML += (i+1)+"ª Parcela";
+									celula.innerHTML += "<br/><br/>";
+									celula.innerHTML += "O valor da parcela é: R$ "+ Number(valorResultado).toFixed(2);
+									itensFiltro[0][(i+1)] = [valorResultado];
+									break;
+								case 1:
+									celula.innerHTML += "Total atual: R$ "+ Number(valorPago).toFixed(2);
+									celula.innerHTML += "<br/><br/>";
+									saldo = tipoOperacao=="Juntar"?Number(valorTotal-valorPago).toFixed(2):Number(valorTotal).toFixed(2);
+									celula.innerHTML += "Saldo a "+tipoOperacao+": R$ "+ Number(saldo).toFixed(2);
+									break;
+								case 2:
+									if(tipoOperacao=="Juntar") {
+										amortizacao = valorResultado;
+									}else {
+										if(listaValores==null){
+											amortizacao = valorTotal*juros*-1;
+											//amortizacao *= 1/Math.pow((1+juros),carencia);
+											amortizacao += valorResultado;
+										}else amortizacao = listaValores[(i+1)];
+
+										valorTotal -= amortizacao;
+										valorPago += amortizacao;
+									}
+									celula.innerHTML += "Amortização: R$ "+ Number(amortizacao).toFixed(2);
+									celula.innerHTML += "<br/><br/>";
+									itensFiltro[0][(i+1)][1] = amortizacao;
+									if(tipoOperacao=="Juntar") {
+										valorJuros = valorPago*juros;
+									}else{
+										if(listaValores==null) valorJuros = valorResultado-amortizacao;
+										else valorJuros = valorResultado - listaValores[(i+1)];
+									}
+									celula.innerHTML += "Juros: R$ "+ Number(valorJuros).toFixed(2);
+									itensFiltro[0][(i+1)][2] = valorJuros;
+									break;
+							}
+						}
+						if(tipoOperacao=="Juntar") valorPago*=1+juros;
+					}
+					break;
+			}
+			itensFiltro[0][0][6] = 0;
+			listaValores = null;
+		}
+		function GerarTabelaSAC(valorResultado,tipo) {
+			tabela = document.querySelector("#ApresentarResultado");
+			switch(tipo){
+				case "Total":
+					linha = document.createElement("tr");
+					linha.id = "Parcela0";
+					tabela.appendChild(linha);
+					celula = document.createElement("td");
+					celula.colSpan="9";
+					celula.style.border="1px solid black";
+					celula.style.padding="10px";
+					linha.appendChild(celula);
+					celula.innerHTML = "O valor financiado é: R$ "+ Number(valorParcela*tempo).toFixed(2)+
+					"<br/>"+
+					"O valor total dos juros é: R$ "+ Number(valorParcela*(tempo+1)*juros*(tempo/2)*Math.pow(1+juros, carencia)).toFixed(2);
+					GerarTabelaSAC(valorParcela,"Parcela");
+					break;
+				case "Parcela":
+					valorPago=0;
+					amortizacao=valorParcela*1;
+					valorResultado = valorParcela*tempo;
+					if(carencia!=0 && aplicarCorrecao) juros *= Math.pow(1+juros, carencia);
+					document.querySelector("#ApresentarDetalhes").style.visibility = "";
+					itensFiltro = [[[valorResultado+(valorParcela*(tempo+1)*juros*(tempo/2)),valorParcela*tempo]]];
+					itensFiltro[0][0][2] = itensFiltro[0][0][0]-itensFiltro[0][0][1];
+					for(i=0;i<tempo;i++){
+						linha = document.createElement("tr");
+						linha.id = "Parcela"+(i+1);
+						tabela.appendChild(linha);
+							celula = document.createElement("td");
+							linha.appendChild(celula);
+							celula.setAttribute("onclick","location.href = '#'");
+							celula.innerHTML = "Voltar"
+							voltarTopo = document.createElement("a");
+							celula.appendChild(voltarTopo);
+						for(j=0;j<=2;j++){
+							celula = document.createElement("td");
+							linha.appendChild(celula);
+							celula.setAttribute("onclick","document.querySelector('#Selecao"+(i+1)+"').click()");
+							celula.setAttribute("ondblclick","document.querySelector('#Selecao"+(i+1)+"').ondblclick()");
+							switch(j){
+								case 0:
+									checkLinha = document.createElement("input");
+									checkLinha.type = "checkbox";
+									checkLinha.id = "Selecao"+(i+1);
+									checkLinha.value = i+1;
+									checkLinha.setAttribute("onclick","changeRowSelection(this,500)");
+									checkLinha.setAttribute("ondblclick","marcaAte(this)");
+									celula.appendChild(checkLinha);
+									celula.innerHTML += (i+1)+"ª Parcela";
+									celula.innerHTML += "<br/><br/>";
+									celula.innerHTML += "O valor da parcela é: R$ "+ Number(valorParcela+(valorResultado*juros)).toFixed(2);
+									itensFiltro[0][(i+1)] = [valorParcela+(valorResultado*juros)];
+									break;
+								case 1:
+									celula.innerHTML += "Total atual: R$ "+ Number(valorParcela*(i+1)).toFixed(2);
+									celula.innerHTML += "<br/><br/>";
+									celula.innerHTML += "Saldo a "+tipoOperacao+": R$ "+ Number(valorResultado-amortizacao).toFixed(2);
+									break;
+								case 2:
+									celula.innerHTML += "Amortização: R$ "+ Number(amortizacao).toFixed(2);
+									celula.innerHTML += "<br/><br/>";
+									itensFiltro[0][(i+1)][1] = amortizacao;
+									if(tipoOperacao=="Juntar") celula.innerHTML += "Juros: R$ "+ Number(valorPago-amortizacao).toFixed(2);
+									else celula.innerHTML += "Juros: R$ "+ Number(valorResultado*juros).toFixed(2);
+									itensFiltro[0][(i+1)][2] = valorResultado*juros;
+									valorResultado -= valorParcela;
+									break;
+							}
+						}
+						if(tipoOperacao=="Juntar") valorPago*=1+juros;
+					}
+					break;
+			}
+			if(itensFiltro[0].length<3) itensFiltro[0][0][6] = 0;
+			else itensFiltro[0][0][6] = itensFiltro[0][1][0]-itensFiltro[0][2][0];
+		}
+		function Checar(campo){
+			retornar=false;
+			tag="#"+campo;
+			document.querySelector(tag).parentNode.style.border="";
+			campo=document.querySelector(tag).value.trim();
+			if(campo=="") {document.querySelector(tag).parentNode.style.border="1px solid red"; retornar=true;}
+			return retornar;
+		}
+		
+		function Go(){
+			quantParcelas = document.querySelector("#ApresentarResultado").childElementCount;
+			if(quantParcelas==0) {
+				alert("Favor gerar seu parcelamento primeiro");
+				return;
+			}
+			if(document.querySelector("#ApresentarResultado").children[0].childElementCount==1) quantParcelas--;
+
+			irPara = IrParcela.value*1;
+			if(irPara<=quantParcelas) location.href="#Parcela"+irPara;
+		}
+		function changeRowSelection(campo,tempo){
+			executarInversao=true;
+			setTimeout(function(){
+				if(!executarInversao) return;
+				if(campo.checked) {
+					campo.parentNode.style.backgroundColor="#ABABAB";
+					}else{
+						campo.parentNode.style.backgroundColor="";
+					}
+				controlaFiltro(campo.value*1,campo.checked)
+			},tempo);
+		}
+		function controlaFiltro(campo,Adicionar){
+			if(Adicionar) {
+				itensFiltro.push(campo*1);
+				switch(itensFiltro.length){
+					case 2:
+						itensFiltro[0][0][3] = itensFiltro[0][campo][0];
+						itensFiltro[0][0][4] = itensFiltro[0][campo][1];
+						itensFiltro[0][0][5] = itensFiltro[0][campo][2];
+						break;
+					default:
+						itensFiltro[0][0][3] += itensFiltro[0][campo][0];
+						itensFiltro[0][0][4] += itensFiltro[0][campo][1];
+						itensFiltro[0][0][5] += itensFiltro[0][campo][2];
+						break;
+				}
+			}else{
+				itensFiltro.splice(itensFiltro.indexOf(campo),1);
+				switch(itensFiltro.length){
+					case 1:
+						itensFiltro[0][0][3] = 0;
+						itensFiltro[0][0][4] = 0;
+						itensFiltro[0][0][5] = 0;
+						break;
+					case 2:
+						itensFiltro[0][0][3] = itensFiltro[0][itensFiltro[1]][0];
+						itensFiltro[0][0][4] = itensFiltro[0][itensFiltro[1]][1];
+						itensFiltro[0][0][5] = itensFiltro[0][itensFiltro[1]][2];
+						break;
+					default:
+						itensFiltro[0][0][3] -= itensFiltro[0][campo][0];
+						itensFiltro[0][0][4] -= itensFiltro[0][campo][1];
+						itensFiltro[0][0][5] -= itensFiltro[0][campo][2];
+						break;
+				}			}
+			detalharSelecionadas();
+		}
+		function marcaAte(campo){
+			executarInversao=false;
+			MarcaMax = document.querySelectorAll("input[type=checkbox]").length;
+			
+			MarcaAte = prompt("Deseja inverter a seleção até que parcela? ",MarcaMax);
+			if(MarcaAte == null || MarcaAte.trim()=="" ) return;
+			if( isNaN(MarcaAte) || MarcaAte<1 || MarcaAte>MarcaMax ) {
+				alert("Não existe a parcela ' " + MarcaAte.trim() + " '");
+				return;
+			}
+			
+			setTimeout(function(){
+				MarcaAte *=1;
+				//alert(campo.value)
+				if(campo.value>MarcaAte) for(i=campo.value;i>=MarcaAte;i--){
+					marcarParcela(i);
+				}
+				else for(i=campo.value;i<=MarcaAte;i++){
+					marcarParcela(i);
+				}
+			},600);
+		}
+		function marcarParcela(parcela){
+			document.querySelector("#Selecao"+parcela).click();
+		}
+		function money(valor){
+			return Number(valor).toFixed(2);
+		}
+		function detalharSelecionadas(){
+			detalhesMostrados = document.querySelector("#ApresentarDetalhes");
+			ValorParaMostrar = [];
+			ValorParaMostrar = ValorParaMostrar.concat(itensFiltro);
+			ValorParaMostrar.shift();
+			ValorParaMostrar.sort(function(a,b) { return a-b; });
+			
+			switch(itensFiltro.length){
+				case 0:
+				case 1:
+					detalhesMostrados.innerHTML = "";
+					break;
+				case 2:
+					detalhesMostrados.innerHTML = "Parcela selecionada: " + ValorParaMostrar + ".<br/>";
+					detalhesMostrados.innerHTML += "<br/>";
+					detalhesMostrados.innerHTML += "Detalhes da parcela selecionada:<br/>";
+					detalhesMostrados.innerHTML += "Total com juros: "+money(itensFiltro[0][0][3])+"<br/>";
+					detalhesMostrados.innerHTML += "Amortização: "+money(itensFiltro[0][0][4])+"<br/>";
+					detalhesMostrados.innerHTML += "Juros: "+money(itensFiltro[0][0][5])+"<br/>";
+					if(itensFiltro[0][0][6]!=0) detalhesMostrados.innerHTML += "Decréscimo nas prestações: "+money(itensFiltro[0][0][6])+"<br/>";
+					detalhesMostrados.innerHTML += "<br/>";
+					detalhesMostrados.innerHTML += "Resta pagar:<br/>";
+					detalhesMostrados.innerHTML += "Total com juros: "+money(itensFiltro[0][0][0]-itensFiltro[0][0][3])+"<br/>";
+					detalhesMostrados.innerHTML += "Amortização: "+money(itensFiltro[0][0][1]-itensFiltro[0][0][4])+"<br/>";
+					detalhesMostrados.innerHTML += "Juros: "+money(itensFiltro[0][0][2]-itensFiltro[0][0][5])+"<br/>";
+					break;
+				default:
+					detalhesMostrados.innerHTML = "Parcelas selecionadas: " + ValorParaMostrar.join(", ") + ".<br/>";
+					detalhesMostrados.innerHTML += "<br/>";
+					detalhesMostrados.innerHTML += "Detalhes das parcelas selecionadas:<br/>";
+					detalhesMostrados.innerHTML += "Total com juros: "+money(itensFiltro[0][0][3])+"<br/>";
+					detalhesMostrados.innerHTML += "Amortização: "+money(itensFiltro[0][0][4])+"<br/>";
+					detalhesMostrados.innerHTML += "Juros: "+money(itensFiltro[0][0][5])+"<br/>";
+					if(itensFiltro[0][0][6]!=0) detalhesMostrados.innerHTML += "Decréscimo nas prestações: "+money(itensFiltro[0][0][6])+"<br/>";
+					detalhesMostrados.innerHTML += "<br/>";
+					detalhesMostrados.innerHTML += "Resta pagar:<br/>";
+					detalhesMostrados.innerHTML += "Total com juros: "+money(itensFiltro[0][0][0]-itensFiltro[0][0][3])+"<br/>";
+					detalhesMostrados.innerHTML += "Amortização: "+money(itensFiltro[0][0][1]-itensFiltro[0][0][4])+"<br/>";
+					detalhesMostrados.innerHTML += "Juros: "+money(itensFiltro[0][0][2]-itensFiltro[0][0][5])+"<br/>";
+					break;
+			}
+			if(detalhesMostrados.innerHTML == "") detalhesMostrados.style.visibility = "";
+			else detalhesMostrados.style.visibility = "visible";
+			detalhesMostrados.style.left = "calc(50% - "+ detalhesMostrados.offsetWidth/2 +"px)";
+		}
+	 </script>
+	</center>
+	</div>
+  </div>
+</body>
+</html>
